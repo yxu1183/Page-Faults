@@ -39,26 +39,6 @@ int check_present(int check, int working_set_size)
   return present;
 }
 
-int get_check_index(int check, int working_set_size)
-{
-  int check_index;
-  int i = 0;
-  while(i < working_set_size)
-  while (i < working_set_size)
-  {
-    if (array[i] != check)
-    {
-    }
-    else
-    {
-      check_index = i;
-      break;
-    }
-    i++;
-  }
-  return check_index;
-}
-
 int FIFO_pagefault(int pages[], int working_set_size, int length)
 {
   initialize_check(working_set_size);
@@ -184,33 +164,32 @@ int LRU_pagefault(int pages[], int working_set_size, int length)
   return page_faults;
 }
 
-bool page_found( int pages[], int working_set_size,  int page_search, int *counter)
+bool page_found(int pages[], int working_set_size, int page_search, int *counter)
 {
-	int j = 0;
-	for(j = 0; j < working_set_size; j++)
-	{
-		if(pages[j] == page_search)
-		{
-			*counter= j;
-			return true;
-		}
-	}
-	*counter = -1;
-	return false;
+  int j = 0;
+  for (j = 0; j < working_set_size; j++)
+  {
+    if (pages[j] == page_search)
+    {
+      *counter = j;
+      return true;
+    }
+  }
+  *counter = -1;
+  return false;
 }
 
 int page_blank(int pages[], int working_set_size)
 {
-	int j = 0;
-	for(j = 0; j < working_set_size; j++)
-	{
-		if(pages[j] == -1)
+  int j = 0;
+  for (j = 0; j < working_set_size; j++)
+  {
+    if (pages[j] == -1)
     {
-			return 1;
+      return 1;
     }
-	}
-
-	return 0;
+  }
+  return 0;
 }
 
 int MFU_pagefault(int working_set_size, char copy_forMFU[])
@@ -225,11 +204,11 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   int counter = 0;
 
   int i = 0;
-  for(i = 0; i < MAX_LINE; i++)
+  for (i = 0; i < MAX_LINE; i++)
   {
     array_copy[i] = -1;
   }
-  for(i = 0; i < working_set_size; i++)
+  for (i = 0; i < working_set_size; i++)
   {
     pages_copy[i] = 0;
     pages[i] = -1;
@@ -238,7 +217,7 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   int length = 0;
   char *token = strtok(copy_forMFU, " ");
 
-  while(token != NULL)
+  while (token != NULL)
   {
     array_copy[length] = atoi(token);
     token = strtok(NULL, " ");
@@ -246,16 +225,16 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   }
 
   int check_pages = page_blank(pages, working_set_size);
-  while(check_pages == 1)
+  while (check_pages == 1)
   {
-    if(!page_found(pages, working_set_size, array_copy[page_counter], &counter))
+    if (!page_found(pages, working_set_size, array_copy[page_counter], &counter))
     {
       pages[prev_counter] = array_copy[page_counter];
       pages_copy[prev_counter]++;
       page_faults++;
       prev_counter++;
     }
-    else if(page_found(pages, working_set_size, array_copy[page_counter], &counter))
+    else if (page_found(pages, working_set_size, array_copy[page_counter], &counter))
     {
       pages_copy[counter]++;
     }
@@ -263,9 +242,9 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
     check_pages = page_blank(pages, working_set_size);
   }
 
-  for(final_counter = page_counter; final_counter < length; final_counter++)
+  for (final_counter = page_counter; final_counter < length; final_counter++)
   {
-    if(page_found(pages, working_set_size, array_copy[final_counter], &counter))
+    if (page_found(pages, working_set_size, array_copy[final_counter], &counter))
     {
       pages_copy[counter]++;
       continue;
@@ -274,9 +253,9 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
     int max_occur = pages_copy[0];
     int k = 0;
     counter = k;
-    for(k = 1; k < working_set_size; k++)
+    for (k = 1; k < working_set_size; k++)
     {
-      if(max_occur < pages_copy[k])
+      if (max_occur < pages_copy[k])
       {
         max_occur = pages_copy[k];
         counter = k;
@@ -290,81 +269,76 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   return page_faults;
 }
 
-int main( int argc, char * argv[] )
+int main(int argc, char *argv[])
 {
   int working_set_size = 0;
-  char * line = NULL;
+  char *line = NULL;
   size_t line_length = MAX_LINE;
-  char * filename;
+  char *filename;
 
-  FILE * file;
+  FILE *file;
 
-  if( argc < 2 )
+  if (argc < 2)
   {
     printf("Error: You must provide a checkfile as an argument.\n");
     printf("Example: ./fp checkfile.txt\n");
     exit(EXIT_FAILURE);
   }
 
-  filename = ( char * ) malloc( strlen( argv[1] ) + 1 );
-  line     = ( char * ) malloc( MAX_LINE );
+  filename = (char *)malloc(strlen(argv[1]) + 1);
+  line = (char *)malloc(MAX_LINE);
 
-  memset( filename, 0, strlen( argv[1] + 1 ) );
-  strncpy( filename, argv[1], strlen( argv[1] ) );
+  memset(filename, 0, strlen(argv[1] + 1));
+  strncpy(filename, argv[1], strlen(argv[1]));
 
-  printf("\nOpening file %s ...\n", filename );
-  file = fopen( filename , "r");
+  printf("\nOpening file %s ...\n", filename);
+  file = fopen(filename, "r");
 
-  if ( file )
+  if (file)
   {
     int pages[MAX_LINE];
     int length = 0;
     char copy_forMFU[MAX_LINE];
-    char *line2 = ( char * ) malloc( MAX_LINE );
+    char *line2 = (char *)malloc(MAX_LINE);
 
-    while ( fgets( line, line_length, file ) )
+    while (fgets(line, line_length, file))
     {
-      char * token;
-      char * token2;
+      char *token;
+      char *token2;
 
       strcpy(line2, line);
       token2 = strtok(line2, " ");
       token2 = strtok(NULL, "\r\n");
       strcpy(copy_forMFU, token2);
 
-      token = strtok( line, " ");
-      working_set_size = atoi( token );
+      token = strtok(line, " ");
+      working_set_size = atoi(token);
 
-    //  token2 = strtok(line, " ");
+      printf("\nWorking set size: %d\n\n", working_set_size);
 
-
-      printf("\nWorking set size: %d\n\n", working_set_size );
-
-      while( token != NULL )
+      while (token != NULL)
       {
-        token = strtok( NULL, " " );
-        if( token != NULL )
+        token = strtok(NULL, " ");
+        if (token != NULL)
         {
           pages[length] = atoi(token);
           length++;
         }
       }
-
+      printf("Page faults of FIFO: %5d\n", FIFO_pagefault(pages, working_set_size, length));
+      printf("Page faults of Optimal: %2d\n", optimal_pagefault(pages, working_set_size, length));
+      printf("Page faults of LRU: %6d\n", LRU_pagefault(pages, working_set_size, length));
+      printf("Page faults of MFU: %6d\n", MFU_pagefault(working_set_size, copy_forMFU));
+      length = 0;
+      printf("\n");
     }
-
-    printf("Page faults of FIFO: %5d\n",FIFO_pagefault(pages,working_set_size,length));
-    printf("Page faults of Optimal: %2d\n",optimal_pagefault(pages,working_set_size,length));
-    printf("Page faults of LRU: %6d\n",LRU_pagefault(pages,working_set_size,length));
-    printf("Page faults of MFU: %6d\n",MFU_pagefault(working_set_size,copy_forMFU));
-    printf("\n");
-    free( line );
+    free(line);
     fclose(file);
   }
   else
   {
-    perror("Couldnt open file :(  ....");
+    perror("Couldnt open file :(  ....\n");
   }
-
   return 0;
 }
 
