@@ -7,14 +7,14 @@
 
 #define MAX_LINE 1024
 
-int array[MAX_LINE/2];
+int array[MAX_LINE / 2];
 int page_faults = 0;
 
 void initialize_check(int working_set_size)
 {
   page_faults = 0;
   int j = 0;
-  for(j = 0; j < working_set_size; j++)
+  for (j = 0; j < working_set_size; j++)
   {
     array[j] = 9999;
   }
@@ -23,10 +23,10 @@ void initialize_check(int working_set_size)
 int check_present(int check, int working_set_size)
 {
   int present = 0;
-  int k  = 0;
-  while(k < working_set_size)
+  int k = 0;
+  while (k < working_set_size)
   {
-    if(array[k] != check)
+    if (array[k] != check)
     {
     }
     else
@@ -39,19 +39,39 @@ int check_present(int check, int working_set_size)
   return present;
 }
 
+int get_check_index(int check, int working_set_size)
+{
+  int check_index;
+  int i = 0;
+  while(i < working_set_size)
+  while (i < working_set_size)
+  {
+    if (array[i] != check)
+    {
+    }
+    else
+    {
+      check_index = i;
+      break;
+    }
+    i++;
+  }
+  return check_index;
+}
+
 int FIFO_pagefault(int pages[], int working_set_size, int length)
 {
   initialize_check(working_set_size);
-  int i,j = 0;
-  for(i = 0; i < length; i++)
+  int i, j = 0;
+  for (i = 0; i < length; i++)
   {
-    if(check_present(pages[i],working_set_size) == 0)
+    if (check_present(pages[i], working_set_size) == 0)
     {
-      for(j = 0; j < working_set_size-1 ;j++)
+      for (j = 0; j < working_set_size - 1; j++)
       {
-        array[j]=array[j+1];
+        array[j] = array[j + 1];
       }
-      array[j]=pages[i];
+      array[j] = pages[i];
       page_faults = page_faults + 1;
     }
   }
@@ -61,23 +81,23 @@ int FIFO_pagefault(int pages[], int working_set_size, int length)
 int optimal_pagefault(int pages[], int working_set_size, int length)
 {
   int i, j, k = 0;
-  int close[MAX_LINE/2];
+  int close[MAX_LINE / 2];
   initialize_check(working_set_size);
-  while(k<length)
+  while (k < length)
   {
-    if(check_present(pages[k], working_set_size) == 0)
+    if (check_present(pages[k], working_set_size) == 0)
     {
-      for(i = 0; i<working_set_size; i++)
+      for (i = 0; i < working_set_size; i++)
       {
         int find = 0;
         int page = array[i];
         j = k;
-        while(j<length)
+        while (j < length)
         {
-          if(page == pages[j])
+          if (page == pages[j])
           {
             find = 1;
-            close[i]=j;
+            close[i] = j;
             break;
           }
           else
@@ -86,7 +106,7 @@ int optimal_pagefault(int pages[], int working_set_size, int length)
           }
           j++;
         }
-        if(!find)
+        if (!find)
         {
           close[i] = 9999;
         }
@@ -94,16 +114,16 @@ int optimal_pagefault(int pages[], int working_set_size, int length)
       int maximum = -9999;
       int repeated;
       i = 0;
-      while(i<working_set_size)
+      while (i < working_set_size)
       {
-        if(maximum < close[i])
+        if (maximum < close[i])
         {
           repeated = i;
           maximum = close[i];
         }
         i++;
       }
-      array[repeated]=pages[k];
+      array[repeated] = pages[k];
       page_faults = page_faults + 1;
     }
     k++;
@@ -114,23 +134,23 @@ int optimal_pagefault(int pages[], int working_set_size, int length)
 int LRU_pagefault(int pages[], int working_set_size, int length)
 {
   int i, j, k = 0;
-  int close[MAX_LINE/2];
+  int close[MAX_LINE / 2];
   initialize_check(working_set_size);
-  while(k<length)
+  while (k < length)
   {
-    if(check_present(pages[k], working_set_size) == 0)
+    if (check_present(pages[k], working_set_size) == 0)
     {
-      for(i = 0; i<working_set_size; i++)
+      for (i = 0; i < working_set_size; i++)
       {
         int find = 0;
         int page = array[i];
-        j = k-1;
-        while(j>=0)
+        j = k - 1;
+        while (j >= 0)
         {
-          if(page == pages[j])
+          if (page == pages[j])
           {
             find = 1;
-            close[i]=j;
+            close[i] = j;
             break;
           }
           else
@@ -139,7 +159,7 @@ int LRU_pagefault(int pages[], int working_set_size, int length)
           }
           j--;
         }
-        if(!find)
+        if (!find)
         {
           close[i] = -9999;
         }
@@ -147,16 +167,16 @@ int LRU_pagefault(int pages[], int working_set_size, int length)
       int least = 9999;
       int repeated;
       i = 0;
-      while(i<working_set_size)
+      while (i < working_set_size)
       {
-        if(close[i]<least)
+        if (close[i] < least)
         {
           repeated = i;
           least = close[i];
         }
         i++;
       }
-      array[repeated]=pages[k];
+      array[repeated] = pages[k];
       page_faults = page_faults + 1;
     }
     k++;
@@ -322,18 +342,20 @@ int main( int argc, char * argv[] )
           length++;
         }
       }
-      printf("Page faults of FIFO: %5d\n",FIFO_pagefault(pages,working_set_size,length));
-      printf("Page faults of Optimal: %2d\n",optimal_pagefault(pages,working_set_size,length));
-      printf("Page faults of LRU: %6d\n",LRU_pagefault(pages,working_set_size,length));
-      printf("Page faults of MFU: %6d\n",MFU_pagefault(working_set_size,copy_forMFU));
+
     }
+
+    printf("Page faults of FIFO: %5d\n",FIFO_pagefault(pages,working_set_size,length));
+    printf("Page faults of Optimal: %2d\n",optimal_pagefault(pages,working_set_size,length));
+    printf("Page faults of LRU: %6d\n",LRU_pagefault(pages,working_set_size,length));
+    printf("Page faults of MFU: %6d\n",MFU_pagefault(working_set_size,copy_forMFU));
+    printf("\n");
     free( line );
     fclose(file);
-    printf("\n");
   }
   else
   {
-    perror("Couldnt open file :(  ....\n");
+    perror("Couldnt open file :(  ....");
   }
 
   return 0;
