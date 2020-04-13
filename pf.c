@@ -1,24 +1,3 @@
-// The MIT License (MIT)
-//
-// Copyright (c) 2020 Trevor Bakker
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
 
 #include <stdio.h>
 #include <string.h>
@@ -92,7 +71,58 @@ int FIFO_pagefault(int pages[], int working_set_size, int length)
   return page_faults;
 }
 
-//int optimal_pagefault(int pages[], int working_)
+int optimal_pagefault(int pages[], int working_set_size, int length)
+{
+  int i, j, k = 0;
+  int close[MAX_LINE/2];
+  initialize_check(working_set_size);
+  while(k<length)
+  {
+    if(check_present(pages[k], working_set_size) == 0)
+    {
+      for(i = 0; i<working_set_size; i++)
+      {
+        int find = 0;
+        int page = array[i]; 
+        j = k;
+        while(j<length)
+        {
+          if(page == pages[j])
+          {
+            find = 1;
+            close[i]=j;
+            break;
+          }
+          else
+          {
+            find = 0;
+          }
+          j++;
+        }
+        if(!find)
+        {
+          close[i] = 9;
+        }
+      }
+      int maximum = -9;
+      int repeated; 
+      i = 0;
+      while(i<working_set_size)
+      {
+        if(maximum < close[i])
+        {
+          repeated = i;
+          maximum = close[i];
+        }
+        i++;
+      }
+      array[repeated]=pages[k];
+      page_faults = page_faults + 1;
+    }
+    k++;
+  }
+  return page_faults;
+}
 
 int main( int argc, char * argv[] ) 
 {
@@ -149,6 +179,7 @@ int main( int argc, char * argv[] )
 
     //printf("%d\n",length);
     printf("%d\n",FIFO_pagefault(pages,working_set_size,length));
+    printf("%d\n",optimal_pagefault(pages,working_set_size,length));
     free( line );
     fclose(file);
   }
