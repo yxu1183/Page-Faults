@@ -26,60 +26,60 @@
 
 #define MAX_LINE 1024
 
-int pages[MAX_LINE];
 int array[MAX_LINE/2];
 int page_faults = 0;
-int working_set_size = 0;
-int length = 0;
-int present = 0;
 
-void initialize_check()
+void initialize_check(int working_set_size)
 {
   page_faults = 0;
   int j = 0;
   for(j = 0; j < working_set_size; j++)
   {
-    array[j] = 9999;
+    array[j] = -1;
   }
 }
 
-int check_present(int check)
+int check_present(int check, int working_set_size)
 {
-  present = 0;
+  int present = 0;
   int k  = 0;
-  for(k = 0 ; k < working_set_size; k++)
+  while(k < working_set_size)
   {
-    if(array[k] == check)
+    if(array[k] != check){}
+    else
     {
       present = 1;
       break;
     }
+    k++;
   }
   return present;
 }
 
-int get_check_index(int check)
+int get_check_index(int check, int working_set_size)
 {
   int check_index;
   int i = 0;
-  for(i = 0; i < working_set_size; i++)
+  while(i < working_set_size)
   {
-    if(array[i] == check)
+    if(array[i] != check){}
+    else
     {
       check_index = i;
       break;
     }
+    i++;
   }
   return check_index;
 }
 
-int FIFO_pagefault()
+int FIFO_pagefault(int pages[], int working_set_size, int length)
 {
-  initialize_check();
+  initialize_check(working_set_size);
   int i,j = 0;
   for(i = 0; i < length; i++)
-  {
-    if(check_present(pages[i]) == 0)
+  { 
+    if(check_present(pages[i],working_set_size) == 0)
     {
       for(j = 0; j < working_set_size-1 ;j++)
       {
@@ -92,8 +92,13 @@ int FIFO_pagefault()
   return page_faults;
 }
 
+//int optimal_pagefault(int pages[], int working_)
+
 int main( int argc, char * argv[] ) 
 {
+  int pages[MAX_LINE];
+  int working_set_size = 0;
+  int length = 0;
   char * line = NULL;
   size_t line_length = MAX_LINE;
   char * filename;
@@ -143,7 +148,7 @@ int main( int argc, char * argv[] )
     }
 
     //printf("%d\n",length);
-    printf("%d\n",FIFO_pagefault());
+    printf("%d\n",FIFO_pagefault(pages,working_set_size,length));
     free( line );
     fclose(file);
   }
