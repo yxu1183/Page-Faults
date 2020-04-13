@@ -320,17 +320,24 @@ int main( int argc, char * argv[] )
     int pages[MAX_LINE];
     int length = 0;
     char copy_forMFU[MAX_LINE];
+    char *line2 = ( char * ) malloc( MAX_LINE );
 
     while ( fgets( line, line_length, file ) )
     {
       char * token;
       char * token2;
 
-      token2 = strtok(line, "\r\n");
+      strcpy(line2, line);
+      token2 = strtok(line2, " ");
+      token2 = strtok(NULL, "\r\n");
       strcpy(copy_forMFU, token2);
 
       token = strtok( line, " ");
       working_set_size = atoi( token );
+
+    //  token2 = strtok(line, " ");
+
+
       printf("\nWorking set size: %d\n\n", working_set_size );
 
       while( token != NULL )
