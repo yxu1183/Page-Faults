@@ -26,6 +26,72 @@
 
 #define MAX_LINE 1024
 
+int pages[MAX_LINE];
+int array[MAX_LINE/2];
+int page_faults = 0;
+int working_set_size = 0;
+int length = 0;
+int present = 0;
+
+void initialize_check()
+{
+  page_faults = 0;
+  int j = 0;
+  for(j = 0; j < working_set_size; j++)
+  {
+    array[j] = 9999;
+  }
+}
+
+int check_present(int check)
+{
+  present = 0;
+  int k  = 0;
+  for(k = 0 ; k < working_set_size; k++)
+  {
+    if(array[k] == check)
+    {
+      present = 1;
+      break;
+    }
+  }
+  return present;
+}
+
+int get_check_index(int check)
+{
+  int check_index;
+  int i = 0;
+  for(i = 0; i < working_set_size; i++)
+  {
+    if(array[i] == check)
+    {
+      check_index = i;
+      break;
+    }
+  }
+  return check_index;
+}
+
+int FIFO_pagefault()
+{
+  initialize_check();
+  int i,j = 0;
+  for(i = 0; i < length; i++)
+  {
+    if(check_present(pages[i]) == 0)
+    {
+      for(j = 0; j < working_set_size-1 ;j++)
+      {
+        array[j]=array[j+1];
+      }
+      array[j]=pages[i];
+      page_faults = page_faults + 1;
+    }
+  }
+  return page_faults;
+}
+
 int main( int argc, char * argv[] ) 
 {
   char * line = NULL;
@@ -36,8 +102,8 @@ int main( int argc, char * argv[] )
 
   if( argc < 2 )
   {
-    printf("Error: You must provide a datafile as an argument.\n");
-    printf("Example: ./fp datafile.txt\n");
+    printf("Error: You must provide a checkfile as an argument.\n");
+    printf("Example: ./fp checkfile.txt\n");
     exit( EXIT_FAILURE );
   }
 
@@ -57,9 +123,9 @@ int main( int argc, char * argv[] )
       char * token;
 
       token = strtok( line, " ");
-      int working_set_size = atoi( token );
+      working_set_size = atoi( token );
 
-      printf("\nWorking set size: %d\n", working_set_size );
+      //printf("\nWorking set size: %d\n", working_set_size );
  
       while( token != NULL )
       {
@@ -67,12 +133,17 @@ int main( int argc, char * argv[] )
         
         if( token != NULL )
         {
-           printf("Request: %d\n", atoi( token ) ); 
+          pages[length] = atoi(token);
+          //printf("Request: %d\n", pages[length]); 
+          length++;
         }
       }
-      printf("\n");
+      //printf("\n");
+      
     }
 
+    //printf("%d\n",length);
+    printf("%d\n",FIFO_pagefault());
     free( line );
     fclose(file);
   }
