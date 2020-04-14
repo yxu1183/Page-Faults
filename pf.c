@@ -1,4 +1,11 @@
+/*
+  Assignment -3: Page Fault
+  Team Memebers:
+  1. Yunika Upadhayaya, ID: 1001631183
+  2. Pratik Mahato, ID: 1001661375
+*/
 
+//Header Files
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +17,9 @@
 int array[MAX_LINE / 2];
 int page_faults = 0;
 
+//Initializes an int array with 9999
+//Parameters - working ize frame
+//Returns - Nothing
 void initialize_check(int working_set_size)
 {
   page_faults = 0;
@@ -20,6 +30,9 @@ void initialize_check(int working_set_size)
   }
 }
 
+//Checks if data is in the array for FIFO,Optimal,LRU
+//Parameters: data, working size frame
+//Returns: 1 if data is present
 int check_present(int check, int working_set_size)
 {
   int present = 0;
@@ -39,12 +52,50 @@ int check_present(int check, int working_set_size)
   return present;
 }
 
+//Checks if page is in the array for MFU
+//Parameters: array, working size frame, data, counter
+//Returns: true if  found otherwise false
+bool page_found(int pages[], int working_set_size, int page_search, int *counter)
+{
+  int j = 0;
+  for (j = 0; j < working_set_size; j++)
+  {
+    if (pages[j] == page_search)
+    {
+      *counter = j;
+      return true;
+    }
+  }
+  *counter = -1;
+  return false;
+}
+
+//Checks if the page is blank for MFU
+//Parameters: array, working size frame
+int page_blank(int pages[], int working_set_size)
+{
+  int j = 0;
+  for (j = 0; j < working_set_size; j++)
+  {
+    if (pages[j] == -1)
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+//Implements First In First Out page fault algorithm
+//Paramters: array of page requests, working size frame, length of the array
+//Returns: Page faults in FIFO
 int FIFO_pagefault(int pages[], int working_set_size, int length)
 {
+  //Initialize the array
   initialize_check(working_set_size);
   int i, j = 0;
   for (i = 0; i < length; i++)
   {
+    //Finds and executes only if there is a page fault
     if (check_present(pages[i], working_set_size) == 0)
     {
       for (j = 0; j < working_set_size - 1; j++)
@@ -58,13 +109,18 @@ int FIFO_pagefault(int pages[], int working_set_size, int length)
   return page_faults;
 }
 
+//Implements Optimal page fault algorithm
+//Parameters: array of page requests, working size frame, length of the array
+//Returns: Page Faults in Optimal
 int optimal_pagefault(int pages[], int working_set_size, int length)
 {
   int i, j, k = 0;
   int close[MAX_LINE / 2];
+  //Initialize the array
   initialize_check(working_set_size);
   while (k < length)
   {
+    //Finds and executes only if there is a page fault
     if (check_present(pages[k], working_set_size) == 0)
     {
       for (i = 0; i < working_set_size; i++)
@@ -111,13 +167,18 @@ int optimal_pagefault(int pages[], int working_set_size, int length)
   return page_faults;
 }
 
+//Implements Least Recently Found page fault algorithm
+//Parameters: array of page requests, working size frame, length of the array
+//Returns: Page Faults in LRU
 int LRU_pagefault(int pages[], int working_set_size, int length)
 {
   int i, j, k = 0;
   int close[MAX_LINE / 2];
+  //Initialize the array
   initialize_check(working_set_size);
   while (k < length)
   {
+    //Finds and executes only if there is a page fault
     if (check_present(pages[k], working_set_size) == 0)
     {
       for (i = 0; i < working_set_size; i++)
@@ -164,34 +225,9 @@ int LRU_pagefault(int pages[], int working_set_size, int length)
   return page_faults;
 }
 
-bool page_found(int pages[], int working_set_size, int page_search, int *counter)
-{
-  int j = 0;
-  for (j = 0; j < working_set_size; j++)
-  {
-    if (pages[j] == page_search)
-    {
-      *counter = j;
-      return true;
-    }
-  }
-  *counter = -1;
-  return false;
-}
-
-int page_blank(int pages[], int working_set_size)
-{
-  int j = 0;
-  for (j = 0; j < working_set_size; j++)
-  {
-    if (pages[j] == -1)
-    {
-      return 1;
-    }
-  }
-  return 0;
-}
-
+//Implements Most Frequently Used  page fault algorithm
+//Parameters: char array of page requests, working size frame
+//Returns: Page Faults in MFU
 int MFU_pagefault(int working_set_size, char copy_forMFU[])
 {
   page_faults = 0;
@@ -203,6 +239,7 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   int final_counter = 0;
   int counter = 0;
 
+  //Initialize the array
   int i = 0;
   for (i = 0; i < MAX_LINE; i++)
   {
@@ -217,6 +254,7 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   int length = 0;
   char *token = strtok(copy_forMFU, " ");
 
+  //Convert char array to integer array
   while (token != NULL)
   {
     array_copy[length] = atoi(token);
@@ -225,6 +263,9 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
   }
 
   int check_pages = page_blank(pages, working_set_size);
+
+  //Fill up the working set
+  //Determine which page was used recently
   while (check_pages == 1)
   {
     if (!page_found(pages, working_set_size, array_copy[page_counter], &counter))
@@ -242,6 +283,7 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
     check_pages = page_blank(pages, working_set_size);
   }
 
+  //Do nothing if we find the value in the working set
   for (final_counter = page_counter; final_counter < length; final_counter++)
   {
     if (page_found(pages, working_set_size, array_copy[final_counter], &counter))
@@ -250,6 +292,7 @@ int MFU_pagefault(int working_set_size, char copy_forMFU[])
       continue;
     }
 
+    //Remove least recently used from the array set, if there is no page
     int max_occur = pages_copy[0];
     int k = 0;
     counter = k;
@@ -301,6 +344,7 @@ int main(int argc, char *argv[])
     char copy_forMFU[MAX_LINE];
     char *line2 = (char *)malloc(MAX_LINE);
 
+    //Read in from the file
     while (fgets(line, line_length, file))
     {
       char *token;
@@ -316,6 +360,7 @@ int main(int argc, char *argv[])
 
       printf("\nWorking set size: %d\n\n", working_set_size);
 
+      //Changes the character array into the integer array
       while (token != NULL)
       {
         token = strtok(NULL, " ");
@@ -325,10 +370,11 @@ int main(int argc, char *argv[])
           length++;
         }
       }
+      //Prints the coressponding page faults in correspnding algorithm
       printf("Page faults of FIFO: %5d\n", FIFO_pagefault(pages, working_set_size, length));
-      printf("Page faults of Optimal: %2d\n", optimal_pagefault(pages, working_set_size, length));
       printf("Page faults of LRU: %6d\n", LRU_pagefault(pages, working_set_size, length));
       printf("Page faults of MFU: %6d\n", MFU_pagefault(working_set_size, copy_forMFU));
+      printf("Page faults of Optimal: %2d\n", optimal_pagefault(pages, working_set_size, length));
       length = 0;
       printf("\n");
     }
