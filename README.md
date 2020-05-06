@@ -2,7 +2,7 @@
 ### Operating System/Assignment-3: Created by [Dr. Trevor Bakker](https://github.com/trevorbakker-uta)
 
 ## Descirption
-Program that implements the FIFO, Optimal, MFU, and LRU page-replacement algorthms. 
+Program that implements the FIFO, Optimal, MFU, and LRU page-replacement algorthims. 
 
 ## Funtionality
 * With a given page-reference string, the code outpurs the number of page faults incurred by each algorithm.
